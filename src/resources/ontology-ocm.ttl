@@ -1,0 +1,315 @@
+@prefix : <http://www.wu.ac.at/2026/obligation-core-model#> .
+@prefix ex: <http://example.org#> .
+@prefix gc: <http://www.wu.ac.at/2026/obligation-core-model#> .
+@prefix hc: <http://wu.ac.at/domain/hospital-inpatient-care#> .
+@prefix gem: <http://www.wu.ac.at/2026/obligation-execution-model#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.wu.ac.at/2026/obligation-core-model#> .
+
+#################################################################
+# Ontology
+#################################################################
+
+<http://wu.ac.at/2026/obligation-compliance-model> rdf:type owl:Ontology .
+
+#################################################################
+# Core Classes
+#################################################################
+
+
+:Obligation a owl:Class .
+
+:TemporalAction a owl:Class .
+
+:RegulatedAction a owl:Class .
+
+:Event a owl:Class .
+
+:Entity a owl:Class .
+
+:Action a owl:Class .
+
+:Resource a owl:Class .
+
+
+#################################################################
+# Obligation as a Complex Action
+#################################################################
+
+:Obligation
+   a owl:Class ;
+    owl:equivalentClass [ 
+     a owl:Class ;
+      owl:intersectionOf (
+        # temporal action
+        [ a owl:Restriction ;
+          owl:onProperty :obligationContent ;
+          owl:someValuesFrom :TemporalAction
+        ]
+
+        # activation condition
+        [ a owl:Restriction ;
+          owl:onProperty :activationCondition ;
+          owl:someValuesFrom :Event
+        ]
+
+
+      )
+    ] .
+
+
+###############################################################
+#TemporalAction as a Complex Class
+###############################################################
+     
+
+:TemporalAction
+    a owl:Class ;
+    owl:equivalentClass [
+      a owl:Class ;
+      owl:intersectionOf (
+
+        # action content
+        [ a owl:Restriction ;
+          owl:onProperty :actionContent ;
+          owl:someValuesFrom :RegulatedAction
+        ]
+
+        # temporal constraints
+        [ a owl:Restriction ;
+          owl:onProperty :startTime ;
+          owl:someValuesFrom [ a rdfs:Datatype ; owl:onDatatype xsd:dateTime ]
+        ]
+
+        [ a owl:Restriction ;
+          owl:onProperty :deadline ;
+          owl:someValuesFrom [ a rdfs:Datatype ; owl:onDatatype xsd:dateTime ]
+        ]
+          
+        [ a owl:Restriction ;
+          owl:onProperty :duration ;
+          owl:someValuesFrom [ a rdfs:Datatype ; owl:onDatatype xsd:duration ]
+        ]
+          
+            )
+        
+    ] .
+
+
+#################################################################
+# Regulated Action  as a Complex Action
+#################################################################
+
+:RegulatedAction
+    a owl:Class ;
+    owl:equivalentClass [ 
+      a owl:Class ;
+      owl:intersectionOf (
+
+        # action 
+        [ a owl:Restriction ;
+          owl:onProperty :action ;
+          owl:someValuesFrom :Action
+        ]
+
+        # resource 
+        [ a owl:Restriction ;
+          owl:onProperty :resource ;
+          owl:someValuesFrom :Resource
+        ]
+
+        # entity 
+        [ a owl:Restriction ;
+          owl:onProperty :entity ;
+          owl:someValuesFrom :Entity
+        ]
+
+      )
+    ] .
+
+
+#################################################################
+# Core Object Properties
+#################################################################
+
+### obligationContent  links an obligation to its temporal action
+
+:obligationContent a owl:ObjectProperty ;
+        rdfs:domain :Obligation ;
+        rdfs:range :TemporalAction .
+
+### Obligation links to its activationCondition
+
+:activationCondition a owl:ObjectProperty ;
+        rdfs:domain :Obligation ;
+        rdfs:range :Event .
+
+### Obligation links to its creator
+
+:createdBy a owl:ObjectProperty ;
+        rdfs:domain :Obligation ;
+        rdfs:range :Entity .
+
+
+### actionContent links a temporal action to its regulated action
+
+:actionContent a owl:ObjectProperty ;
+        rdfs:domain :TemporalAction ;
+        rdfs:range :RegulatedAction .
+
+
+### A regulated action describes an action performed by an entity on a resource
+
+:entity a owl:ObjectProperty ;
+        rdfs:domain :RegulatedAction ;
+        rdfs:range :Entity .
+
+:sender  rdfs:subPropertyOf   :entity .
+:receiver rdfs:subPropertyOf :entity .
+
+
+:action a owl:ObjectProperty ;
+        rdfs:domain :RegulatedAction ;
+        rdfs:range :Action .
+
+:resource a owl:ObjectProperty ;
+        rdfs:domain :RegulatedAction ;
+        rdfs:range :Resource .
+
+
+#################################################################
+# Core Datatype Properties
+#################################################################
+
+## temporal dateTime properties of a temporal action
+
+:startTime a owl:DatatypeProperty ;
+        rdfs:domain :TemporalAction ;
+        rdfs:range xsd:dateTime .
+
+:deadline a owl:DatatypeProperty ;
+        rdfs:domain :TemporalAction ;
+        rdfs:range xsd:dateTime .
+
+:duration a owl:DatatypeProperty ;
+        rdfs:domain :TemporalAction ;
+        rdfs:range xsd:duration .
+
+## temporal dateTime properties of an Event
+:atTime a owl:DatatypeProperty ;
+        rdfs:domain :Event ;
+        rdfs:range xsd:dateTime .
+
+
+## temporal dataTime properties of an obligation
+
+:createdAtTime a owl:DatatypeProperty ;
+        rdfs:domain :Obligation ;
+        rdfs:range xsd:dateTime .
+
+:createdAtTime  rdfs:subPropertyOf :atTime .
+
+
+
+## temporal numeric properties of a temporal action
+
+:numericStartTime a owl:DatatypeProperty ;
+        rdfs:domain :TemporalAction ;
+        rdfs:range xsd:long .
+
+:numericDeadline a owl:DatatypeProperty ;
+        rdfs:domain :TemporalAction ;
+        rdfs:range xsd:long .
+
+:numericDuration a owl:DatatypeProperty ;
+        rdfs:domain :TemporalAction ;
+        rdfs:range xsd:long .
+
+
+## temporal numeric dateTime properties of an Event
+:numericAtTime a owl:DatatypeProperty ;
+        rdfs:domain :Event ;
+        rdfs:range xsd:long .
+
+
+## temporal numeric dateTime properties of an obligation
+
+:numericCreatedAtTime a owl:DatatypeProperty ;
+        rdfs:domain :Obligation ;
+        rdfs:range xsd:long .
+
+:numericCreatedAtTime  rdfs:subPropertyOf :numericAtTime .
+
+
+
+#################################################################
+# Execution Model Classes 
+#################################################################
+
+
+
+#################################################################
+# States of Obligations
+#################################################################
+
+gem:Active a owl:Class ;
+        rdfs:subClassOf :Obligation .
+
+gem:Expired a owl:Class ;
+        rdfs:subClassOf :Obligation .
+
+gem:Violated a owl:Class ;
+        rdfs:subClassOf :Obligation .
+
+gem:Fulfilled a owl:Class ;
+        rdfs:subClassOf :Obligation .
+
+gem:Violated  owl:disjointWith  gem:Fulfilled .       
+
+
+#################################################################
+# Temporal Action States
+################################################################# 
+
+
+gem:ActiveTemporalAction a owl:Class ;
+        rdfs:subClassOf :TemporalAction .
+
+
+gem:ExpiredTemporalAction a owl:Class ;
+        rdfs:subClassOf :TemporalAction .
+
+gem:ActiveTemporalAction owl:disjointWith gem:ExpiredTemporalAction .
+
+
+
+#################################################################
+# Regulated Action States
+################################################################# 
+
+
+gem:OnTimeExecutedAction a owl:Class ;
+        rdfs:subClassOf :RegulatedAction .
+
+gem:FailedExecutedAction a owl:Class ;
+        rdfs:subClassOf :RegulatedAction .
+
+gem:OnTimeExecutedAction owl:disjointWith gem:FailedExecutedAction .
+
+
+#################################################################
+# State of an event
+#################################################################
+
+gem:TriggeredEvent a owl:Class ;
+    rdfs:subClassOf :Event .
+
+#################################################################
+# instances
+#################################################################
+
+:elapse  rdf:type :Event .

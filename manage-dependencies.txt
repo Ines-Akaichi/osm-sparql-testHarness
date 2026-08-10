@@ -1,0 +1,13 @@
+To add the gucon-sparql artifact to gucon sparql evaluation artifact:
+1-	Generate gucon-sparql artifact as jar
+2-	Run this command in cmd inside the evaluation artifact (needs to be one line):
+mvn install:install-file -Dfile="C:\Users\Administrator\eclipse-workspace\gucon-sparql\target\gucon-sparql.jar" -DgroupId="wu.ac.at" -DartifactId="gucon-sparql" -Dversion="0.0.1-SNAPSHOT" -Dpackaging="jar" 
+
+3-	Add this dependeny to evaluation pom.xml:
+		
+<dependency>
+<groupId>wu.ac.at</groupId>
+<artifactId>gucon-sparql</artifactId>
+<version>0.0.1-SNAPSHOT</version>
+</dependency>
+
